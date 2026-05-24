@@ -27,9 +27,10 @@
 
         <!-- Stats Cards -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card stat-card-clickable" onclick="openBalanceModal()" style="cursor: pointer;">
                 <span class="stat-label">Total Balance</span>
                 <span class="stat-value">₹{{ total_balance|default(0) }}</span>
+                <span class="stat-action">Click to Update</span>
             </div>
             <div class="stat-card">
                 <span class="stat-label">Total Spent</span>
@@ -87,5 +88,119 @@
 
     </div>
 </section>
+
+<!-- Balance Update Modal -->
+<div id="balanceModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Update Your Balance</h2>
+            <button class="modal-close" onclick="closeBalanceModal()">&times;</button>
+        </div>
+
+        <div class="modal-body">
+            <div class="current-balance-display">
+                <span class="balance-label">Current Balance:</span>
+                <span class="balance-amount">₹{{ total_balance|default(0) }}</span>
+            </div>
+
+            <form id="balanceUpdateForm" method="POST" class="modal-form">
+                
+                <!-- Update Balance Option -->
+                <div class="form-option-modal">
+                    <input type="radio" id="update-balance-modal" name="action" value="update" checked>
+                    <label for="update-balance-modal" class="option-label-modal">
+                        <span class="option-title-modal">Update Balance</span>
+                        <span class="option-desc-modal">Enter your new balance amount</span>
+                    </label>
+                </div>
+
+                <div class="update-input-modal" id="update-input-modal">
+                    <input type="number" name="new_balance" placeholder="Enter new balance (₹)" 
+                           step="0.01" min="0" class="balance-input-modal"
+                           value="{{ total_balance|default(0) }}">
+                </div>
+
+                <!-- Reset Balance Option -->
+                <div class="form-option-modal">
+                    <input type="radio" id="reset-balance-modal" name="action" value="reset">
+                    <label for="reset-balance-modal" class="option-label-modal">
+                        <span class="option-title-modal">Reset Balance</span>
+                        <span class="option-desc-modal">Clear your balance to ₹0</span>
+                    </label>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="closeBalanceModal()">Cancel</button>
+            <button type="button" class="btn-primary" onclick="submitBalanceUpdate()">Update Balance</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openBalanceModal() {
+        document.getElementById('balanceModal').classList.add('modal-open');
+    }
+
+    function closeBalanceModal() {
+        document.getElementById('balanceModal').classList.remove('modal-open');
+    }
+
+    function submitBalanceUpdate() {
+        const form = document.getElementById('balanceUpdateForm');
+        const updateRadio = document.getElementById('update-balance-modal');
+        const newBalanceInput = document.querySelector('input[name="new_balance"]');
+
+        // Create hidden form to submit
+        const hiddenForm = document.createElement('form');
+        hiddenForm.method = 'POST';
+        hiddenForm.action = '{{ url_for("dashboard") }}';
+
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = updateRadio.checked ? 'update' : 'reset';
+        hiddenForm.appendChild(actionInput);
+
+        if (updateRadio.checked) {
+            const balanceInput = document.createElement('input');
+            balanceInput.type = 'hidden';
+            balanceInput.name = 'balance';
+            balanceInput.value = newBalanceInput.value;
+            hiddenForm.appendChild(balanceInput);
+        }
+
+        document.body.appendChild(hiddenForm);
+        hiddenForm.submit();
+    }
+
+    // Toggle input field visibility
+    const updateRadioModal = document.getElementById('update-balance-modal');
+    const resetRadioModal = document.getElementById('reset-balance-modal');
+    const updateInputModal = document.getElementById('update-input-modal');
+    const newBalanceInputModal = document.querySelector('input[name="new_balance"]');
+
+    function toggleInputFieldModal() {
+        if (updateRadioModal.checked) {
+            updateInputModal.style.display = 'block';
+            newBalanceInputModal.required = true;
+        } else {
+            updateInputModal.style.display = 'none';
+            newBalanceInputModal.required = false;
+        }
+    }
+
+    updateRadioModal.addEventListener('change', toggleInputFieldModal);
+    resetRadioModal.addEventListener('change', toggleInputFieldModal);
+
+    // Close modal when clicking outside
+    document.getElementById('balanceModal').addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeBalanceModal();
+        }
+    });
+</script>
 
 {% endblock %}

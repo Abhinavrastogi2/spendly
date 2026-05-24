@@ -91,12 +91,17 @@ def dashboard():
     
     # Handle balance update
     if request.method == "POST":
-        balance = request.form.get("balance")
-        if balance:
-            try:
-                balance_db[user_id] = float(balance)
-            except ValueError:
-                pass
+        action = request.form.get("action")
+        
+        if action == "update":
+            balance = request.form.get("balance")
+            if balance:
+                try:
+                    balance_db[user_id] = float(balance)
+                except ValueError:
+                    pass
+        elif action == "reset":
+            balance_db[user_id] = 0
     
     # Get current balance
     total_balance = balance_db.get(user_id, 0)
