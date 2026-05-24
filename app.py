@@ -176,9 +176,43 @@ def delete_expense(id):
     user_id = session['user_id']
     user_expenses = expenses_db.get(user_id, [])
     
+    # Check if this is the last expense
+    is_last_expense = len(user_expenses) == 1
+    
+    # Delete the expense
     expenses_db[user_id] = [exp for exp in user_expenses if exp['id'] != id]
     
+    # If it was the last expense, redirect to balance update page
+    if is_last_expense:
+        return redirect(url_for('update_balance_after_delete'))
+    
     return redirect(url_for('dashboard'))
+
+
+@app.route("/balance/update-after-delete", methods=["GET", "POST"])
+@login_required
+def update_balance_after_delete():
+    user_id = session['user_id']
+    current_balance = balance_db.get(user_id, 0)
+    
+    if request.method == "POST":
+        action = request.form.get("action")
+        
+        if action == "reset":
+            # Reset balance to 0
+            balance_db[user_id] = 0
+        elif action == "update":
+            # Update with new balance
+            new_balance = request.form.get("new_balance")
+            if new_balance:
+                try:
+                    balance_db[user_id] = float(new_balance)
+                except ValueError:
+                    pass
+        
+        return redirect(url_for('dashboard'))
+    
+    return render_template("update_balance.html", current_balance=current_balance)
 
 
 if __name__ == "__main__":

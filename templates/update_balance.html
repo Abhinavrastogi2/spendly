@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Update Balance — Spendly{% endblock %}
+
+{% block content %}
+
+<section class="balance-update-section">
+    <div class="balance-update-container">
+
+        <div class="balance-update-card">
+            <div class="balance-update-header">
+                <span class="balance-update-icon">✓</span>
+                <h1 class="balance-update-title">Last Expense Deleted!</h1>
+                <p class="balance-update-subtitle">You've deleted your last expense. Would you like to update your balance?</p>
+            </div>
+
+            <div class="balance-info">
+                <p class="balance-info-label">Current Balance:</p>
+                <p class="balance-info-value">₹{{ current_balance }}</p>
+            </div>
+
+            <form method="POST" class="balance-update-form">
+                
+                <!-- Update Balance Option -->
+                <div class="form-option">
+                    <input type="radio" id="update-option" name="action" value="update" checked>
+                    <label for="update-option" class="option-label">
+                        <span class="option-title">Update Balance</span>
+                        <span class="option-desc">Enter your new total balance</span>
+                    </label>
+                </div>
+
+                <div class="update-input-group" id="update-input-group">
+                    <input type="number" name="new_balance" placeholder="Enter new balance (₹)" 
+                           step="0.01" min="0" class="balance-input-field"
+                           value="{{ current_balance }}">
+                </div>
+
+                <!-- Reset Balance Option -->
+                <div class="form-option">
+                    <input type="radio" id="reset-option" name="action" value="reset">
+                    <label for="reset-option" class="option-label">
+                        <span class="option-title">Reset Balance</span>
+                        <span class="option-desc">Clear your balance and start fresh</span>
+                    </label>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="balance-actions">
+                    <a href="{{ url_for('dashboard') }}" class="btn-secondary">Skip</a>
+                    <button type="submit" class="btn-primary">Update & Continue</button>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    // Toggle input field visibility based on radio selection
+    const updateOption = document.getElementById('update-option');
+    const resetOption = document.getElementById('reset-option');
+    const updateInputGroup = document.getElementById('update-input-group');
+    const newBalanceInput = document.querySelector('input[name="new_balance"]');
+
+    function toggleInputField() {
+        if (updateOption.checked) {
+            updateInputGroup.style.display = 'block';
+            newBalanceInput.required = true;
+        } else {
+            updateInputGroup.style.display = 'none';
+            newBalanceInput.required = false;
+        }
+    }
+
+    updateOption.addEventListener('change', toggleInputField);
+    resetOption.addEventListener('change', toggleInputField);
+</script>
+
+{% endblock %}
