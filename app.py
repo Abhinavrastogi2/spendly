@@ -8,6 +8,7 @@ app.secret_key = 'your-secret-key-change-this'  # Change in production
 # Mock database for now (will be replaced with SQLite)
 users_db = {}
 expenses_db = {}
+balance_db = {}  # Store balance for each user
 
 
 # ------------------------------------------------------------------ #
@@ -82,18 +83,32 @@ def logout():
     return redirect(url_for('landing'))
 
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=["GET", "POST"])
 @login_required
 def dashboard():
     user_id = session['user_id']
     user_expenses = expenses_db.get(user_id, [])
     
+    # Handle balance update
+    if request.method == "POST":
+        balance = request.form.get("balance")
+        if balance:
+            try:
+                balance_db[user_id] = float(balance)
+            except ValueError:
+                pass
+    
+    # Get current balance
+    total_balance = balance_db.get(user_id, 0)
     total_expenses = sum(exp['amount'] for exp in user_expenses)
+    remaining_balance = total_balance - total_expenses
     transaction_count = len(user_expenses)
     
     return render_template("dashboard.html",
                          expenses=user_expenses,
+                         total_balance=total_balance,
                          total_expenses=total_expenses,
+                         remaining_balance=remaining_balance,
                          transaction_count=transaction_count)
 
 

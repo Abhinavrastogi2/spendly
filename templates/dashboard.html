@@ -13,19 +13,31 @@
             <p class="dashboard-subtitle">Track your expenses and manage your spending</p>
         </div>
 
+        <!-- Set Balance Section -->
+        {% if total_balance == 0 %}
+        <div class="balance-setup">
+            <h3 class="balance-setup-title">Set Your Total Balance</h3>
+            <form method="POST" class="balance-form">
+                <input type="number" name="balance" placeholder="Enter your total balance (₹)" 
+                       step="0.01" min="0" class="balance-input" required autofocus>
+                <button type="submit" class="btn-primary" style="padding: 0.6rem 1.5rem;">Set Balance</button>
+            </form>
+        </div>
+        {% endif %}
+
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <span class="stat-label">Total Expenses</span>
-                <span class="stat-value">₹{{ total_expenses|default(0) }}</span>
+                <span class="stat-label">Total Balance</span>
+                <span class="stat-value">₹{{ total_balance|default(0) }}</span>
             </div>
             <div class="stat-card">
-                <span class="stat-label">This Month</span>
-                <span class="stat-value">₹{{ month_expenses|default(0) }}</span>
+                <span class="stat-label">Total Spent</span>
+                <span class="stat-value" style="color: var(--danger);">₹{{ total_expenses|default(0) }}</span>
             </div>
             <div class="stat-card">
-                <span class="stat-label">Total Transactions</span>
-                <span class="stat-value">{{ transaction_count|default(0) }}</span>
+                <span class="stat-label">Remaining Balance</span>
+                <span class="stat-value" style="color: var(--accent);">₹{{ remaining_balance|default(0) }}</span>
             </div>
         </div>
 
